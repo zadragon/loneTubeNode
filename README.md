@@ -43,7 +43,7 @@ npx sequelize db:create
 ```
 
 ```
-npx sequelize model:generate --name Users --attributes userId:INTEGER,email:string,password:string,nickname:string,age:INTEGER
+npx sequelize model:generate --name User --attributes UserId:string,password:string,UserImage:string,SubscriptCount:integer,SubscriptList:json
 npx sequelize model:generate --name Todos --attributes todoId:INTEGER,userId:INTEGER,title:string,content:string,createdAt:date,updateAt:date,doneAt:date,done:boolean
 ```
 

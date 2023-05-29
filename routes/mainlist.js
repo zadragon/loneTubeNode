@@ -3,9 +3,16 @@ const mainlist_router = express.Router();
 require("dotenv").config();
 const env = process.env;
 const authMiddleware = require("../middlewares/auth-middleware");
+const { User, VideoList, Comment } = require("../models");
 
 //구독리스트
 mainlist_router.get("/sublist", authMiddleware, async (req, res, next) => {
+  const { UserId } = res.locals.user;
+  const SubscriptResult = await User.findOne({ UserId });
+  console.log(SubscriptResult);
+  SubscriptResult.SubscriptList = SubscriptResult.SubscriptList.split(",");
+  console.log(SubscriptResult.SubscriptList);
+
   console.log("구독리스트 API 호출됨");
   return res.status(200);
 });
@@ -75,6 +82,14 @@ mainlist_router.get("/videolist", async (req, res, next) => {
   //저장된 동영상 불러오는 코드를 추가해서
 
   //
+
+  const VideoListResult = await VideoList.create({
+    UserId: "1",
+    Title: "test",
+    Like: 0,
+    View: 0,
+    URL: "test",
+  });
   return res.status(200).json({ message: "youtube 조회 성공" });
 });
 

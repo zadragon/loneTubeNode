@@ -28,14 +28,23 @@ npx sequelize init
 │   └── auth-middleware.js
 ├── migrations
 ├── models
+│   ├── comment.js
 │   ├── index.js
-│   ├──
-│   └──
+│   ├── user.js
+│   └── videolist.js
+│
 ├── routes
-│   ├──
-│   └──
+│   ├── auth.js
+│   ├── index.js
+│   ├── mainlist.js
+│   ├── profile.js
+│   └── videoplay.js
+│
 ├── package-lock.json
-└── package.json
+│
+├── package.json
+│
+└── app.js
 ```
 
 ```
@@ -44,7 +53,8 @@ npx sequelize db:create
 
 ```
 npx sequelize model:generate --name User --attributes UserId:string,password:string,UserImage:string,SubscriptCount:integer,SubscriptList:json
-npx sequelize model:generate --name Todos --attributes todoId:INTEGER,userId:INTEGER,title:string,content:string,createdAt:date,updateAt:date,doneAt:date,done:boolean
+npx sequelize model:generate --name VideoList --attributes UserId:string,MovieId:string,Title:string,Like:integer,View:integer,URL:string
+npx sequelize model:generate --name Comment --attributes MovieId:string,CommentId:string,UserId:string,Comment:string
 ```
 
 ```

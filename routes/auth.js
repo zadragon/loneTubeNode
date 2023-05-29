@@ -4,6 +4,7 @@ const { User } = require("../models");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middlewares/auth-middleware");
 const crypto = require("crypto");
+const requestIp = require("request-ip");
 
 // ◎ 회원가입 API
 authos_router.post("/signup", async (req, res, next) => {
@@ -66,25 +67,11 @@ authos_router.post("/signup", async (req, res, next) => {
   }
 });
 
-// ◎ 회원정보 불러오기  api
-authos_router.get("/auth", async (req, res, next) => {
-  try {
-    const { userId } = res.locals.user;
-    const userInfo = await User.findOne({
-      attributes: ["email", "nickname", "age"],
-      where: { userId: userId },
-    });
-    console.log(userInfo);
-    return res.status(200).json({ userInfo: userInfo });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "회원정보 조회에 실패하였습니다." });
-  }
-});
-
 // ◎ 로그인 API
 authos_router.post("/login", async (req, res, next) => {
   try {
+    const ip = requestIp.getClientIp(req);
+    console.log(ip);
     const { UserId, password } = req.body;
     const crypyedPw = crypto
       .createHash("sha512")
@@ -108,23 +95,16 @@ authos_router.post("/login", async (req, res, next) => {
     res.cookie("authorization", `Bearer ${token}`, {
       domain: "localhost",
       secure: false,
-      //sameSite: 'strict',
+      sameSite: "strict",
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, //1 day
     });
-    return res.status(200).json({ message: "로그인 성공" });
+    //res.body = { authorization: `Bearer ${token}` };
+    //return res.status(200).json({ authorization: `Bearer ${token}` });
+    return res.status(200).json({ authorization: `Bearer ${token}` });
   } catch (error) {
     return res.json({ message: "로그인에 실패하였습니다." });
   }
-});
-
-// ◎ 로그아웃 API
-authos_router.post("/logout", async (req, res, next) => {
-  return res
-    .cookie("authorization", "")
-    .status(200)
-    .json({ message: "로그아웃 성공" });
-  return res.status(200).json({ message: "로그아웃 성공" });
 });
 
 module.exports = authos_router;

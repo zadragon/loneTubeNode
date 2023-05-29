@@ -5,7 +5,7 @@ const env = process.env;
 const authMiddleware = require("../middlewares/auth-middleware");
 
 //구독리스트
-mainlist_router.get("/sublist", async (req, res, next) => {
+mainlist_router.get("/sublist", authMiddleware, async (req, res, next) => {
   console.log("구독리스트 API 호출됨");
   return res.status(200);
 });

@@ -52,7 +52,7 @@ npx sequelize db:create
 ```
 
 ```
-npx sequelize model:generate --name User --attributes UserId:string,password:string,UserImage:string,SubscriptCount:integer,SubscriptList:json
+npx sequelize model:generate --name User --attributes UserId:string,password:string,ChannelTitle:string,UserImage:string,SubscriptCount:integer,SubscriptList:json
 npx sequelize model:generate --name VideoList --attributes UserId:string,MovieId:string,Title:string,Like:integer,View:integer,URL:string
 npx sequelize model:generate --name Comment --attributes MovieId:string,CommentId:string,UserId:string,Comment:string
 ```

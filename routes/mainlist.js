@@ -8,10 +8,11 @@ const { User, VideoList, Comment } = require("../models");
 //구독리스트
 mainlist_router.get("/sublist", authMiddleware, async (req, res, next) => {
   const { UserId } = res.locals.user;
-  const SubscriptResult = await User.findOne({ UserId });
-  console.log(SubscriptResult);
-  SubscriptResult.SubscriptList = SubscriptResult.SubscriptList.split(",");
-  console.log(SubscriptResult.SubscriptList);
+  console.log(UserId);
+  // const SubscriptResult = await User.findOne({ UserId });
+  // console.log(SubscriptResult);
+  // SubscriptResult.SubscriptList = SubscriptResult.SubscriptList.split(",");
+  // console.log(SubscriptResult.SubscriptList);
 
   console.log("구독리스트 API 호출됨");
   return res.status(200);

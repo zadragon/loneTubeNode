@@ -2,6 +2,7 @@ const express = require("express");
 const videoplay_router = express.Router();
 require("dotenv").config();
 const env = process.env;
+const { Comment } = require("../models");
 
 //영상정보
 videoplay_router.get("/api/videoinfo/:id", async (req, res, next) => {

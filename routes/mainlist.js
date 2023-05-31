@@ -85,9 +85,10 @@ mainlist_router.get("/videolist", async (req, res, next) => {
   const VideoListResult = await VideoList.findAll({
     attributes: ["UserId", "MovieId", "Title", "Like", "View", "URL"],
   });
+
   const Result_Json = JSON.stringify(VideoListResult);
 
-  console.log(`{ "VideoList": ${Result_Json} }`);
+  console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
 
   // const VideoListResult = await VideoList.create({
   //   UserId: "1",
@@ -96,7 +97,10 @@ mainlist_router.get("/videolist", async (req, res, next) => {
   //   View: 0,
   //   URL: "test",
   // });
-  return res.status(200).json({ message: "youtube 조회 성공" });
+  const temp = Result_Json.replace(/\"/gi, "");
+  //console.log(`{ "VideoList": ${Result_Json} }`);
+  //console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
+  return res.status(200).json({ VideoList: temp });
 });
 
 module.exports = mainlist_router;

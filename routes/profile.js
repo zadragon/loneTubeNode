@@ -2,6 +2,9 @@ const express = require("express");
 const profile_router = express.Router();
 require("dotenv").config();
 const env = process.env;
+const authMiddleware = require("../middlewares/auth-middleware");
+const { User, VideoList, Comment } = require("../models");
+
 //프로필 사진 올리기
 profile_router.put("api/profile", async (req, res, next) => {
   console.log("프로필 수정 API 호출됨");
@@ -30,3 +33,4 @@ profile_router.post("api/upload", async (req, res, next) => {
   console.log("영상 올리기 API 호출됨");
   return res.status(200);
 });
+module.exports = profile_router;

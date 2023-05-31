@@ -16,12 +16,19 @@ app.use(
 
 app.set("port", process.env.LISTEN_PORT || 3000);
 
-const authosRouter = require("./routes/index.js");
+const {
+  authosRouter,
+  mainlist_router,
+  profile_router,
+  videoplay_router,
+} = require("./routes/index.js");
+//const { videoplay_router } = require("./routes/index.js");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use("/api", authosRouter);
+
+app.use("/api", [authosRouter, mainlist_router, profile_router]);
 
 // app.listen(app.get("port"), () => {
 //   console.log(app.get("port"), "번 포트에서 대기 중");

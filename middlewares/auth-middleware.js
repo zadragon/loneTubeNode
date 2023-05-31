@@ -22,10 +22,10 @@ module.exports = async (req, res, next) => {
           "tokenType != Bearer 전달된 쿠키에서 오류가 발생하였습니다.",
       });
     }
-
+    console.log(4);
     const decodedToken = jwt.verify(token, "loneTube_key_256");
     const UserId = decodedToken.UserId;
-
+    console.log(5);
     const user = await User.findOne({ where: { UserId } });
     if (!user) {
       res.clearCookie("authorization");

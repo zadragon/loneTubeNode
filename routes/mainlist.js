@@ -39,9 +39,9 @@ mainlist_router.post("/sublist", async (req, res, next) => {
 });
 
 //영상 재생
-mainlist_router.post("/play", async (req, res, next) => {
+mainlist_router.get("/watch/:id", async (req, res, next) => {
   console.log("영상 재생 API 호출됨");
-  return res.status(200).json({ message: "영상 재생 API 호출됨" });
+  return res.status(200);
 });
 
 //영상 리스트 조회

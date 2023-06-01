@@ -21,14 +21,11 @@ videoplay_router.get("/videoinfo/:id", async (req, res, next) => {
       where: { MovieId },
       attributes: ["UserId", "Title", "Like", "View"],
     });
-
-    console.log(movie);
-
     res.status(200).json({
       movie,
     });
   } catch (error) {
-    console.error("영상정보 조회 실패:", error);
+    console.error("영상 조회 실패:", error);
     res.status(500).json({ error: "영상정보 조회에 실패했습니다." });
   }
 });
@@ -88,15 +85,12 @@ videoplay_router.get("/:id/comment", async (req, res, next) => {
     // 총 댓글 수량
     const commentCount = comments.length;
 
-    console.log(comments);
-    console.log(commentCount);
-
     res.status(200).json({
       comments,
       commentCount,
     });
   } catch (error) {
-    console.error("댓글 목록 조회 실패:", error);
+    console.error("댓글 조회 실패:", error);
     res.status(500).json({ error: "댓글 목록 조회에 실패했습니다." });
   }
 });
@@ -107,13 +101,9 @@ videoplay_router.post(
   authMiddleware,
   async (req, res, next) => {
     try {
-      console.log(req.body);
       const { id } = req.params;
       const { commentText } = req.body;
       const userId = res.locals.user.UserId;
-
-      console.log(id);
-      console.log(commentText);
 
       if (!id || id.length === 0) {
         res.status(404).json({ errorMessage: "MovieId를 찾을 수 없습니다." });
@@ -147,7 +137,7 @@ videoplay_router.post(
       console.log(createdComment);
       res.status(200).json({ message: "댓글이 성공적으로 작성되었습니다." });
     } catch (error) {
-      console.log(error);
+      console.error("댓글 입력 실패:", error);
       res.status(400).json({ errorMessage: "댓글 입력을 실패하였습니다." });
     }
   }
@@ -178,8 +168,6 @@ videoplay_router.delete(
       const comment = await Comment.findOne({
         where: { MovieId: id, CommentId: commentId },
       });
-
-      console.log(comment);
 
       if (!comment) {
         res

@@ -37,7 +37,7 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
     const loginUser = res.locals.user;
     const loginUserId = loginUser.UserId;
 
-    // 요청으로부터 구독할 사용자 아이디 받기
+    // 구독할 사용자 아이디
     const { userId } = req.body;
 
     // A 사용자 확인
@@ -58,7 +58,7 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
       return;
     }
 
-    // A 사용자의 구독 정보 추가
+    // A 사용자의 구독 리스트 , B 사용자의 구독자수 추가
     if (!userB.SubscriptCount) {
       userB.SubscriptCount = 1;
     } else {
@@ -113,7 +113,7 @@ videoplay_router.post("/:id/like", authMiddleware, async (req, res, next) => {
   }
 });
 
-//댓글정보
+//댓글 정보
 videoplay_router.get("/:id/comment", async (req, res, next) => {
   try {
     const MovieId = req.params.id;

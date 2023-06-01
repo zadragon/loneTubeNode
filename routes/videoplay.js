@@ -31,13 +31,61 @@ videoplay_router.get("/videoinfo/:id", async (req, res, next) => {
 });
 
 //구독버튼
-videoplay_router.post(
-  "/api/subscript",
-  authMiddleware,
-  async (req, res, next) => {
-    res.status(200).json({ message: "구독api" });
+videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
+  try {
+    // 로그인 사용자 확인
+    const loginUser = res.locals.user;
+    const loginUserId = loginUser.UserId;
+
+    // 요청으로부터 구독할 사용자 아이디 받기
+    const { userId } = req.body;
+
+    // A 사용자 확인
+    const userA = await User.findOne({ where: { UserId: loginUserId } });
+
+    if (!userA) {
+      res.status(404).json({ errorMessage: "사용자를 찾을 수 없습니다." });
+      return;
+    }
+
+    // B 사용자 확인
+    const userB = await User.findOne({ where: { UserId: userId } });
+
+    if (!userB) {
+      res
+        .status(404)
+        .json({ errorMessage: "구독할 사용자를 찾을 수 없습니다." });
+      return;
+    }
+
+    // A 사용자의 구독 정보 추가
+    if (!userB.SubscriptCount) {
+      userB.SubscriptCount = 1;
+    } else {
+      userB.SubscriptCount += 1;
+    }
+    await userB.save();
+
+    if (!userA.SubscriptList) {
+      userA.SubscriptList = [userId];
+    } else {
+      let existingSubscriptions = [];
+      if (typeof userA.SubscriptList === "string") {
+        existingSubscriptions = JSON.parse(userA.SubscriptList);
+      } else {
+        existingSubscriptions = userA.SubscriptList;
+      }
+      existingSubscriptions.push(userId);
+      userA.SubscriptList = existingSubscriptions;
+    }
+    console.log(userA.SubscriptList);
+    await userA.save();
+    res.status(200).json({ message: "구독이 추가되었습니다." });
+  } catch (error) {
+    console.error("구독 추가 실패:", error);
+    res.status(500).json({ error: "구독 추가에 실패했습니다." });
   }
-);
+});
 
 //좋아요버튼
 videoplay_router.post("/:id/like", authMiddleware, async (req, res, next) => {

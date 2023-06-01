@@ -43,7 +43,7 @@ videoplay_router.post(
 );
 
 //좋아요버튼
-videoplay_router.post("/:id/like", async (req, res, next) => {
+videoplay_router.post("/:id/like", authMiddleware, async (req, res, next) => {
   try {
     const MovieId = req.params.id;
 

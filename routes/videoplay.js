@@ -42,6 +42,7 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
 
     // Sender 사용자 확인
     const senderUser = await User.findOne({ where: { UserId: loginUserId } });
+    // console.log("센더유저:", senderUser);
 
     if (!senderUser) {
       res.status(404).json({ errorMessage: "사용자를 찾을 수 없습니다." });
@@ -67,8 +68,12 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
     await receiverUser.save();
 
     // Sender 사용자의 구독 리스트 추가
+    const senderUserSublist = {
+      UserId: userId,
+      Thumbnail: senderUser.UserImage,
+    };
     if (!senderUser.SubscriptList) {
-      senderUser.SubscriptList = [userId];
+      senderUser.SubscriptList = [senderUserSublist];
     } else {
       let existingSubscriptions = [];
       if (typeof senderUser.SubscriptList === "string") {
@@ -76,7 +81,7 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
       } else {
         existingSubscriptions = senderUser.SubscriptList;
       }
-      existingSubscriptions.push(userId);
+      existingSubscriptions.push(senderUserSublist);
       senderUser.SubscriptList = existingSubscriptions;
     }
     console.log(senderUser.SubscriptList);

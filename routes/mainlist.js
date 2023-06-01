@@ -8,12 +8,12 @@ const { User, VideoList, Comment } = require("../models");
 //구독리스트
 mainlist_router.post("/sublist", async (req, res, next) => {
   console.log("구독리스트 API 호출됨");
-  const UserId = "kbs뉴스";
+  const UserId = "오도씨씨";
   //const { UserId } = res.locals.user;
   const json_array = [
-    { channelId: "kbs뉴스", Thumbnail: "URL1" },
-    { channelId: "davin3", Thumbnail: "URL2" },
-    { channelId: "zd99", Thumbnail: "URL3" },
+    { channelId: "코믹마트", Thumbnail: "URL1" },
+    { channelId: "웃커플", Thumbnail: "URL2" },
+    { channelId: "핵잼컴퍼니", Thumbnail: "URL3" },
   ];
   const sublist_create_result = await User.update(
     {

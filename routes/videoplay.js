@@ -40,46 +40,47 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
     // 구독할 사용자 아이디
     const { userId } = req.body;
 
-    // A 사용자 확인
-    const userA = await User.findOne({ where: { UserId: loginUserId } });
+    // Sender 사용자 확인
+    const senderUser = await User.findOne({ where: { UserId: loginUserId } });
 
-    if (!userA) {
+    if (!senderUser) {
       res.status(404).json({ errorMessage: "사용자를 찾을 수 없습니다." });
       return;
     }
 
-    // B 사용자 확인
-    const userB = await User.findOne({ where: { UserId: userId } });
+    // Receiver 사용자 확인
+    const receiverUser = await User.findOne({ where: { UserId: userId } });
 
-    if (!userB) {
+    if (!receiverUser) {
       res
         .status(404)
         .json({ errorMessage: "구독할 사용자를 찾을 수 없습니다." });
       return;
     }
 
-    // A 사용자의 구독 리스트 , B 사용자의 구독자수 추가
-    if (!userB.SubscriptCount) {
-      userB.SubscriptCount = 1;
+    // Receiver 사용자의 구독자수 추가
+    if (!receiverUser.SubscriptCount) {
+      receiverUser.SubscriptCount = 1;
     } else {
-      userB.SubscriptCount += 1;
+      receiverUser.SubscriptCount += 1;
     }
-    await userB.save();
+    await receiverUser.save();
 
-    if (!userA.SubscriptList) {
-      userA.SubscriptList = [userId];
+    // Sender 사용자의 구독 리스트 추가
+    if (!senderUser.SubscriptList) {
+      senderUser.SubscriptList = [userId];
     } else {
       let existingSubscriptions = [];
-      if (typeof userA.SubscriptList === "string") {
-        existingSubscriptions = JSON.parse(userA.SubscriptList);
+      if (typeof senderUser.SubscriptList === "string") {
+        existingSubscriptions = JSON.parse(senderUser.SubscriptList);
       } else {
-        existingSubscriptions = userA.SubscriptList;
+        existingSubscriptions = senderUser.SubscriptList;
       }
       existingSubscriptions.push(userId);
-      userA.SubscriptList = existingSubscriptions;
+      senderUser.SubscriptList = existingSubscriptions;
     }
-    console.log(userA.SubscriptList);
-    await userA.save();
+    console.log(senderUser.SubscriptList);
+    await senderUser.save();
     res.status(200).json({ message: "구독이 추가되었습니다." });
   } catch (error) {
     console.error("구독 추가 실패:", error);

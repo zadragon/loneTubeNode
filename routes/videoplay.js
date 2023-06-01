@@ -108,7 +108,7 @@ videoplay_router.post(
   async (req, res, next) => {
     try {
       console.log(req.body);
-      const { id } = req.params; // :id를 id로 변경합니다.
+      const { id } = req.params;
       const { commentText } = req.body;
       const userId = res.locals.user.UserId;
 
@@ -125,7 +125,7 @@ videoplay_router.post(
         return;
       }
 
-      // videolist에서 해당 영상의 정보를 조회합니다.
+      // videolist에서 해당 영상의 정보조회
       const movie = await VideoList.findOne({ where: { MovieId: id } });
 
       if (!movie) {
@@ -176,7 +176,7 @@ videoplay_router.delete(
 
       // 댓글 조회 후 삭제
       const comment = await Comment.findOne({
-        where: { MovieId: id, id: commentId },
+        where: { MovieId: id, CommentId: commentId },
       });
 
       console.log(comment);

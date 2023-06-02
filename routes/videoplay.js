@@ -19,10 +19,19 @@ videoplay_router.get("/videoinfo/:id", async (req, res, next) => {
     // 해당 영상의 정보 조회
     const movie = await VideoList.findOne({
       where: { MovieId },
-      attributes: ["UserId", "Title", "Like", "View"],
+      attributes: ["UserId", "Title", "Like", "View", "URL"],
     });
+    console.log(movie);
+    const UserId = movie.UserId;
+
+    const User_Info = await User.findOne({
+      where: { id: UserId },
+      attributes: ["UserId", "UserImage", "SubscriptCount"],
+    });
+
     res.status(200).json({
       movie,
+      User_Info,
     });
   } catch (error) {
     console.error("영상 조회 실패:", error);
@@ -103,6 +112,7 @@ videoplay_router.post(
     try {
       const { id } = req.params;
       const { commentText } = req.body;
+      //const userId = req.body
       const userId = res.locals.user.UserId;
 
       if (!id || id.length === 0) {

@@ -6,23 +6,23 @@ const authMiddleware = require("../middlewares/auth-middleware");
 const { User, VideoList, Comment } = require("../models");
 
 //구독리스트
-mainlist_router.post("/sublist", async (req, res, next) => {
+mainlist_router.post("/sublist", authMiddleware, async (req, res, next) => {
   console.log("구독리스트 API 호출됨");
-  const UserId = "kbs뉴스";
-  //const { UserId } = res.locals.user;
-  const json_array = [
-    { channelId: "kbs뉴스", Thumbnail: "URL1" },
-    { channelId: "davin3", Thumbnail: "URL2" },
-    { channelId: "zd99", Thumbnail: "URL3" },
-  ];
-  const sublist_create_result = await User.update(
-    {
-      SubscriptList: json_array,
-    },
-    {
-      where: { UserId: UserId },
-    }
-  );
+  //const UserId = "kbs뉴스";
+  const { UserId } = res.locals.user;
+  // const json_array = [
+  //   { channelId: "kbs뉴스", Thumbnail: "URL1" },
+  //   { channelId: "davin3", Thumbnail: "URL2" },
+  //   { channelId: "zd99", Thumbnail: "URL3" },
+  // ];
+  // const sublist_create_result = await User.update(
+  //   {
+  //     SubscriptList: json_array,
+  //   },
+  //   {
+  //     where: { UserId: UserId },
+  //   }
+  // );
 
   console.log(UserId);
   const SubListResult = await User.findAll({
@@ -49,12 +49,49 @@ mainlist_router.get("/videolist", async (req, res, next) => {
   console.log("영상 리스트 조회 API 호출됨");
   //저장된 동영상 불러오는 코드를 추가해서
   const VideoListResult = await VideoList.findAll({
-    attributes: ["UserId", "MovieId", "Title", "Like", "View", "URL"],
+    attributes: [
+      "UserId",
+      "MovieId",
+      "Title",
+      "Like",
+      "View",
+      "URL",
+      "ThumbNail",
+    ],
   });
 
   const Result_Json = JSON.stringify(VideoListResult);
 
   console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
+  const temp = JSON.parse(`${Result_Json}`);
+  return res.status(200).json({ VideoList: temp });
+});
+
+//무한스크롤
+mainlist_router.get("/videolist/:page", async (req, res, next) => {
+  console.log("무한스크롤 리스트 조회 API 호출됨");
+  const { page } = req.params;
+  const VideoListResult = await VideoList.findAll({
+    attributes: [
+      "id",
+      "UserId",
+      "MovieId",
+      "Title",
+      "Like",
+      "View",
+      "URL",
+      //"ThumbNail",
+    ],
+    offset: (page - 1) * 10,
+    limit: 10,
+  });
+  const total_count = await VideoList.count();
+  const total_page = Math.ceil(total_count / 10);
+  const last_page = total_page == page ? true : false;
+  VideoListResult.push({ last_page: last_page });
+  const Result_Json = JSON.stringify(VideoListResult);
+
+  //console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
   const temp = JSON.parse(`${Result_Json}`);
   return res.status(200).json({ VideoList: temp });
 });

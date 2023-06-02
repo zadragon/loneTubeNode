@@ -88,8 +88,27 @@ profile_router.get("/profile", async (req, res, next) => {
 });
 
 //영상 올리기
-profile_router.post("/upload", async (req, res, next) => {
-  console.log("영상 올리기 API 호출됨");
-  return res.status(200);
-});
+profile_router.post(
+  "/upload",
+  upload.single("file"),
+  async (req, res, next) => {
+    console.log("영상 올리기 API 호출됨");
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
+    }
+    //console.log(req.file);
+    // 파일을 base64로 인코딩
+    const base64Data = req.file.buffer.toString("base64");
+
+    const { UserId, Title, URL } = req.body;
+    const video_upload_result = await VideoList.create({
+      UserId: UserId,
+      Title: Title,
+      URL: URL,
+      ThumbNail: base64Data,
+    });
+
+    return res.status(200);
+  }
+);
 module.exports = profile_router;

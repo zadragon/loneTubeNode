@@ -10,26 +10,31 @@ const upload = multer({ storage: multer.memoryStorage() }); // 메모리에 파�
 
 //프로필 사진 올리기
 profile_router.put(
-  "/profile",
+  "/profile",authMiddleware,
   upload.single("file"),
   async (req, res, next) => {
-    //const { UserId } = res.locals.user;
+    var data = JSON.parse(req.body);
+    console.log(data);
+    // Do something with 'data' and 'req.file'
+    const { UserId } = res.locals.user;
+    console.log(UserId);
+    console.log(req.file);
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
     }
     //console.log(req.file);
     // 파일을 base64로 인코딩
-    const base64Data = req.file.buffer.toString("base64");
+    // const base64Data = req.file.buffer.toString("base64");
 
-    const profile_image_upload_result = await User.update(
-      {
-        //UserImage: "base64Data",
-        UserImage: base64Data,
-      },
-      {
-        where: { UserId: "kbs뉴스" },
-      }
-    );
+    // const profile_image_upload_result = await User.update(
+    //   {
+    //     //UserImage: "base64Data",
+    //     UserImage: base64Data,
+    //   },
+    //   {
+    //     where: { UserId: UserId },
+    //   }
+    // );
     console.log("프로필 수정 API 완료");
 
     return res.status(200).json({ message: "프로필 수정 API 호출됨" });
@@ -49,7 +54,7 @@ profile_router.get("/myvideolist", async (req, res, next) => {
     attributes: ["UserId", "MovieId", "Title", "Like", "View", "URL"],
     where: { UserId: UserId_result[0].id },
   });
-  console.log(MyVideoList);
+  //console.log(MyVideoList);
   return res.status(200).json({ MyVideoList });
 });
 
@@ -65,10 +70,10 @@ profile_router.delete("/myvideolist/:MovieId", async (req, res, next) => {
   return res.status(200).json({ message: "동영상 삭제 완료!!" });
 });
 //사용자 정보 (사용자 이름, 구독자수, 내가 올린 영상 갯수, 프로필 사진 url)
-profile_router.get("/profile", async (req, res, next) => {
+profile_router.post("/profile",authMiddleware, async (req, res, next) => {
   console.log("사용자 정보 API 호출됨");
-  //const { UserId } = res.locals.user;
-  const UserId = "davin3";
+  const { UserId } = res.locals.user;
+  //const UserId = "davin3";
   const UserId_result = await User.findAll({
     attributes: ["id", "UserImage", "SubscriptCount"],
     where: { UserId: UserId },
@@ -99,14 +104,17 @@ profile_router.post(
     //console.log(req.file);
     // 파일을 base64로 인코딩
     const base64Data = req.file.buffer.toString("base64");
-
+    console.log(req.body)
+    console.log("upload 1")
     const { UserId, Title, URL } = req.body;
-    const video_upload_result = await VideoList.create({
-      UserId: UserId,
-      Title: Title,
-      URL: URL,
-      ThumbNail: base64Data,
-    });
+    console.log("upload 2")
+    console.log(UserId, Title, URL)
+    // const video_upload_result = await VideoList.create({
+    //   UserId: UserId,
+    //   Title: Title,
+    //   URL: URL,
+    //   ThumbNail: "NULL",
+    // });
 
     return res.status(200);
   }

@@ -4,6 +4,9 @@ require("dotenv").config();
 const env = process.env;
 const authMiddleware = require("../middlewares/auth-middleware");
 const { User, VideoList, Comment } = require("../models");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op
+var YouTube = require('youtube-node');
 
 //구독리스트
 mainlist_router.post("/sublist", authMiddleware, async (req, res, next) => {
@@ -30,7 +33,7 @@ mainlist_router.post("/sublist", authMiddleware, async (req, res, next) => {
     where: { UserId: UserId },
   });
   const Result_Json = JSON.stringify(SubListResult[0].SubscriptList);
-  console.log(`${Result_Json}`.replace(/\"/gi, ""));
+  //console.log(`${Result_Json}`.replace(/\"/gi, ""));
   const temp = JSON.parse(`${SubListResult[0].SubscriptList}`);
   //return res.status(200).json(SubListResult);
   return res.status(200).json({ SubList: temp });
@@ -62,7 +65,7 @@ mainlist_router.get("/videolist", async (req, res, next) => {
 
   const Result_Json = JSON.stringify(VideoListResult);
 
-  console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
+  //console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
   const temp = JSON.parse(`${Result_Json}`);
   return res.status(200).json({ VideoList: temp });
 });
@@ -80,7 +83,7 @@ mainlist_router.get("/videolist/:page", async (req, res, next) => {
       "Like",
       "View",
       "URL",
-      //"ThumbNail",
+      "ThumbNail",
     ],
     offset: (page - 1) * 10,
     limit: 10,
@@ -88,12 +91,90 @@ mainlist_router.get("/videolist/:page", async (req, res, next) => {
   const total_count = await VideoList.count();
   const total_page = Math.ceil(total_count / 10);
   const last_page = total_page == page ? true : false;
-  VideoListResult.push({ last_page: last_page });
+  //VideoListResult.push({ last_page: last_page });
+  //VideoListResult.push({ total_page: total_page });
   const Result_Json = JSON.stringify(VideoListResult);
 
   //console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
   const temp = JSON.parse(`${Result_Json}`);
+    return res.status(200).json({ VideoList: temp,
+      last_page: last_page,
+      total_page: total_page, });
+    //return res.status(200).json({ VideoList: temp});
+});
+
+
+//검색기능
+mainlist_router.post("/search", async (req, res, next) => {
+  console.log("검색 API 호출됨");
+  const { search } = req.body;
+
+  const VideoSearchResult = await VideoList.findAll({
+    attributes: [
+      "id",
+      "UserId",
+      "MovieId",
+      "Title",
+      "Like",
+      "View",
+      "URL",
+      "ThumbNail",
+    ],
+    where: {
+      Title: {
+        [Op.like]: "%" + search + "%",
+      },
+    },
+  });
+  //VideoSearchResult.push({ search: search });
+  //// 유튜브 영상검색
+  var youTube = new YouTube();
+
+  youTube.setKey(env.YOUTUBE_API_KEY); // 여기에 실제 API 키를 입력
+  
+  youTube.search(search, 5, function(error, result) { // 'Search Keyword' 자리에 검색하고 싶은 키워드를 입력
+    if (error) {
+      console.log(error);
+    } else {
+      result.items.forEach(item => {
+        console.log("Channel Name: ", item.snippet.channelTitle);
+        console.log("Channel Thumbnail: ", item.snippet.thumbnails.default.url);
+        console.log("Like",item.statistics.likeCount);
+        console.log("Video Title: ", item.snippet.title);
+        console.log("Video Thumbnail: ", item.snippet.thumbnails.high.url);
+        console.log("---------------------------");
+      });
+    }
+  });
+
+  const Result_Json = JSON.stringify(VideoSearchResult);
+  const temp = JSON.parse(`${Result_Json}`);
   return res.status(200).json({ VideoList: temp });
 });
+
+//유튜브테스트
+mainlist_router.get("/youtube", async (req, res, next) => {
+  console.log("유튜브 API 호출됨");
+  var youTube = new YouTube();
+
+  youTube.setKey(env.YOUTUBE_API_KEY); // 여기에 실제 API 키를 입력
+  
+  youTube.search('항해99', 5, function(error, result) { // 'Search Keyword' 자리에 검색하고 싶은 키워드를 입력
+    if (error) {
+      console.log(error);
+    } else {
+      result.items.forEach(item => {
+        console.log("Channel Name: ", item.snippet.channelTitle);
+        console.log("Channel Thumbnail: ", item.snippet.thumbnails.default.url);
+        console.log("Like",item.statistics.likeCount);
+        console.log("Video Title: ", item.snippet.title);
+        console.log("Video Thumbnail: ", item.snippet.thumbnails.high.url);
+        console.log("---------------------------");
+      });
+    }
+  });
+  return res.status(200).json({ message: "유튜브 API 호출됨" });
+});
+
 
 module.exports = mainlist_router;

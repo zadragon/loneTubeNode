@@ -4,18 +4,28 @@ const { User } = require("../models");
 module.exports = async (req, res, next) => {
   try {
     console.log(1);
-    console.log(req.cookies);
-    const { authorization } = req.cookies;
+    console.log(req.body);
+    //const { authorization } = req.cookies;
+    const {authorization} = req.body;
+    console.log(authorization);
     console.log(2);
     const [tokenType, token] = authorization.split(" "); // 중괄호{} 를 대괄호[]로 수정
     console.log(3);
+    if (!req.file) {
+      console.log("!!!!!!!!file 없음!!!!!!!!!!")
+    }
+    else
+    {
+      req.file = "temp file from auth-middleware.js"
+    }
+
     // # 403 Cookie가 존재하지 않을 경우
     if (!authorization) {
       return res
         .status(403)
         .json({ errorMessage: "로그인이 필요한 기능입니다." });
     }
-    console.log(tokenType);
+    //console.log(tokenType);
     if (tokenType !== "Bearer") {
       return res.status(401).json({
         errorMessage:
@@ -35,6 +45,9 @@ module.exports = async (req, res, next) => {
     }
 
     res.locals.user = user;
+ 
+    
+
 
     next();
   } catch (error) {

@@ -110,13 +110,14 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
 //좋아요버튼
 videoplay_router.post("/:id/like", authMiddleware, async (req, res, next) => {
   try {
-    const loginUser = res.locals.user;
-    const loginUserId = loginUser.UserId;
-    
+    // const loginUser = res.locals.user;
+    // const loginUserId = loginUser.UserId;
+
     const MovieId = req.params.id;
 
     // 영상 조회
-    const Movie = await VideoList.findByPk(MovieId);
+    //const Movie = await VideoList.findByPk(MovieId);
+    const Movie = await VideoList.findOne({ where: { MovieId } });
 
     if (!Movie) {
       res.status(404).json({ errorMessage: "영상을 찾을 수 없습니다." });

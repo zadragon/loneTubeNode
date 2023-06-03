@@ -31,13 +31,67 @@ videoplay_router.get("/videoinfo/:id", async (req, res, next) => {
 });
 
 //구독버튼
-videoplay_router.post(
-  "/api/subscript",
-  authMiddleware,
-  async (req, res, next) => {
-    res.status(200).json({ message: "구독api" });
+videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
+  try {
+    // 로그인 사용자 확인
+    const loginUser = res.locals.user;
+    const loginUserId = loginUser.UserId;
+
+    // 구독할 사용자 아이디
+    const { userId } = req.body;
+
+    // Sender 사용자 확인
+    const senderUser = await User.findOne({ where: { UserId: loginUserId } });
+    // console.log("센더유저:", senderUser);
+
+    if (!senderUser) {
+      res.status(404).json({ errorMessage: "사용자를 찾을 수 없습니다." });
+      return;
+    }
+
+    // Receiver 사용자 확인
+    const receiverUser = await User.findOne({ where: { UserId: userId } });
+
+    if (!receiverUser) {
+      res
+        .status(404)
+        .json({ errorMessage: "구독할 사용자를 찾을 수 없습니다." });
+      return;
+    }
+
+    // Receiver 사용자의 구독자수 추가
+    if (!receiverUser.SubscriptCount) {
+      receiverUser.SubscriptCount = 1;
+    } else {
+      receiverUser.SubscriptCount += 1;
+    }
+    await receiverUser.save();
+
+    // Sender 사용자의 구독 리스트 추가
+    const senderUserSublist = {
+      UserId: userId,
+      Thumbnail: senderUser.UserImage,
+    };
+    if (!senderUser.SubscriptList) {
+      senderUser.SubscriptList = [senderUserSublist];
+    } else {
+      let existingSubscriptions = [];
+      if (typeof senderUser.SubscriptList === "string") {
+        existingSubscriptions = JSON.parse(senderUser.SubscriptList);
+      } else {
+        existingSubscriptions = senderUser.SubscriptList;
+      }
+      existingSubscriptions.push(senderUserSublist);
+      senderUser.SubscriptList = existingSubscriptions;
+    }
+    // console.log(senderUser.SubscriptList);
+    await senderUser.save();
+    res.status(200).json({ message: "구독이 추가되었습니다." });
+  } catch (error) {
+    console.error("구독 추가 실패:", error);
+    res.status(500).json({ error: "구독 추가에 실패했습니다." });
   }
-);
+});
 
 //좋아요버튼
 videoplay_router.post("/:id/like", authMiddleware, async (req, res, next) => {
@@ -65,7 +119,7 @@ videoplay_router.post("/:id/like", authMiddleware, async (req, res, next) => {
   }
 });
 
-//댓글정보
+//댓글 정보
 videoplay_router.get("/:id/comment", async (req, res, next) => {
   try {
     const MovieId = req.params.id;

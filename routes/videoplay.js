@@ -70,8 +70,9 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
     // Sender 사용자의 구독 리스트 추가
     const senderUserSublist = {
       UserId: userId,
-      Thumbnail: senderUser.UserImage,
+      Thumbnail: receiverUser.UserImage,
     };
+    console.log("Thumbnail :", receiverUser.UserImage);
     if (!senderUser.SubscriptList) {
       senderUser.SubscriptList = [senderUserSublist];
     } else {
@@ -85,6 +86,7 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
       senderUser.SubscriptList = existingSubscriptions;
     }
     // console.log(senderUser.SubscriptList);
+    console.log(senderUser.SubscriptList);
     await senderUser.save();
     res.status(200).json({ message: "구독이 추가되었습니다." });
   } catch (error) {

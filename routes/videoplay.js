@@ -84,7 +84,7 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
       existingSubscriptions.push(senderUserSublist);
       senderUser.SubscriptList = existingSubscriptions;
     }
-    console.log(senderUser.SubscriptList);
+    // console.log(senderUser.SubscriptList);
     await senderUser.save();
     res.status(200).json({ message: "구독이 추가되었습니다." });
   } catch (error) {

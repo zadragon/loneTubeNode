@@ -70,8 +70,9 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
     // Sender 사용자의 구독 리스트 추가
     const senderUserSublist = {
       UserId: userId,
-      Thumbnail: senderUser.UserImage,
+      Thumbnail: receiverUser.UserImage,
     };
+    console.log("Thumbnail :", receiverUser.UserImage);
     if (!senderUser.SubscriptList) {
       senderUser.SubscriptList = [senderUserSublist];
     } else {

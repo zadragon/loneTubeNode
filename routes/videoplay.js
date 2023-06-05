@@ -78,7 +78,7 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
     }
     await receiverUser.save();
     // Sender 사용자의 구독 리스트 추가
-    console.log(1)
+    console.log(1);
     //console.log(receiverUser.UserImage)
     const senderUserSublist = {
       UserId: userId,
@@ -250,7 +250,6 @@ videoplay_router.delete(
       }
 
       await comment.destroy();
-
       res.status(200).json({ message: "댓글이 성공적으로 삭제되었습니다." });
     } catch (error) {
       console.error("댓글 삭제 실패:", error);
@@ -259,20 +258,18 @@ videoplay_router.delete(
   }
 );
 
- //조회수 증가
- videoplay_router.get("/:id/view", async (req, res, next) => {
-     const MovieId = req.params.id;
-     const video_views_result = await VideoList.update(
-        {
-          View: Sequelize.literal("View + 1"),
-        },
-        {
-          where: { MovieId },
-        }
-      );
-      res.status(200).json({ message: "조회수 증가" });
-  });
-  
+//조회수 증가
+videoplay_router.get("/:id/view", async (req, res, next) => {
+  const MovieId = req.params.id;
+  const video_views_result = await VideoList.update(
+    {
+      View: Sequelize.literal("View + 1"),
+    },
+    {
+      where: { MovieId },
+    }
+  );
+  res.status(200).json({ message: "조회수 증가" });
+});
 
-    
 module.exports = videoplay_router;

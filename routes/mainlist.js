@@ -102,13 +102,39 @@ mainlist_router.get("/videolist/:page", async (req, res, next) => {
     offset: (page - 1) * 10,
     limit: 10,
   });
+  const result = [];
+  VideoListResult.forEach((item) => {
+    const scroll_result = {
+      UserId: item.UserId,
+      MovieId: item.MovieId,
+      Title: item.Title,
+      Like: item.Like,
+      View: item.View,
+      URL: item.URL,
+      ThumbNail: item.ThumbNail,
+      UserImage: item.User.UserImage,
+    };
+    result.push(scroll_result);
+  });
+  //console.log(result);
+  //console.log("UserId:", VideoListResult.UserId);
+  // const scroll_result = {
+  //   UserId: VideoListResult.UserId,
+  //   MovieId: VideoListResult.MovieId,
+  //   Title: VideoListResult.Title,
+  //   Like: VideoListResult.Like,
+  //   View: VideoListResult.View,
+  //   URL: VideoListResult.URL,
+  //   ThumbNail: VideoListResult.ThumbNail,
+  //   UserImage: VideoListResult.User.UserImage,
+  // };
 
   const total_count = await VideoList.count();
   const total_page = Math.ceil(total_count / 10);
   const last_page = total_page == page ? true : false;
   //VideoListResult.push({ last_page: last_page });
   //VideoListResult.push({ total_page: total_page });
-  const Result_Json = JSON.stringify(VideoListResult);
+  const Result_Json = JSON.stringify(result);
 
   //console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
   const temp = JSON.parse(`${Result_Json}`);

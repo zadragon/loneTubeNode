@@ -63,13 +63,13 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
       return;
     }
     // 구독 체크
-    const existingSubscription = senderUser.SubscriptList.find(
-      (subscription) => subscription.UserId === userId
-    );
-    if (existingSubscription) {
-      res.status(400).json({ errorMessage: "이미 구독 중입니다." });
-      return;
-    }
+    // const existingSubscription = senderUser.SubscriptList.find(
+    //   (subscription) => subscription.UserId === userId
+    // );
+    // if (existingSubscription) {
+    //   res.status(400).json({ errorMessage: "이미 구독 중입니다." });
+    //   return;
+    // }
     // Receiver 사용자의 구독자수 추가
     if (!receiverUser.SubscriptCount) {
       receiverUser.SubscriptCount = 1;
@@ -108,9 +108,9 @@ videoplay_router.post("/subscript", authMiddleware, async (req, res, next) => {
 });
 
 //좋아요버튼
-videoplay_router.post("/:id/like", authMiddleware, async (req, res, next) => {
+videoplay_router.post("/:id/like", async (req, res, next) => {
   try {
-    // const loginUser = res.locals.user;
+    //const loginUser = res.locals.user;
     // const loginUserId = loginUser.UserId;
 
     const MovieId = req.params.id;
@@ -262,15 +262,13 @@ videoplay_router.delete(
 //조회수 증가
 videoplay_router.get("/:id/view", async (req, res, next) => {
   const MovieId = req.params.id;
-  const video_views_result = await VideoList.update(
-    {
-      View: Sequelize.literal("View + 1"),
-    },
-    {
-      where: { MovieId },
-    }
-  );
-  res.status(200).json({ message: "조회수 증가" });
+  const video_views_result = await VideoList.findOne({ where: { MovieId } });
+
+  video_views_result.View += 1;
+  await video_views_result.save();
+  res
+    .status(200)
+    .json({ message: "조회수 증가", views: video_views_result.View });
 });
 
 module.exports = videoplay_router;

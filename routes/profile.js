@@ -46,16 +46,24 @@ profile_router.put(
 );
 
 //내가 올린 동영상 목록
-profile_router.get("/myvideolist", async (req, res, next) => {
+profile_router.post("/myvideolist", authMiddleware, async (req, res, next) => {
   console.log("내가 올린 동영상 목록 API 호출됨");
-  //const { UserId } = res.locals.user;
-  const UserId = "davin3";
+  const { UserId } = res.locals.user;
+  //const UserId = "davin3";
   const UserId_result = await User.findAll({
     attributes: ["id"],
     where: { UserId: UserId },
   });
   const MyVideoList = await VideoList.findAll({
-    attributes: ["UserId", "MovieId", "Title", "Like", "View", "URL"],
+    attributes: [
+      "UserId",
+      "MovieId",
+      "Title",
+      "Like",
+      "View",
+      "URL",
+      "ThumbNail",
+    ],
     where: { UserId: UserId_result[0].id },
   });
   //console.log(MyVideoList);

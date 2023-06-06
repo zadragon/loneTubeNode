@@ -29,13 +29,14 @@ mainlist_router.post("/sublist", authMiddleware, async (req, res, next) => {
 
   console.log(UserId);
   const SubListResult = await User.findAll({
-    attributes: ["UserId", "SubscriptList"],
+    attributes: ["SubscriptList"],
     where: { UserId: UserId },
   });
   const Result_Json = JSON.stringify(SubListResult[0].SubscriptList);
   //console.log(`${Result_Json}`.replace(/\"/gi, ""));
   const temp = JSON.parse(`${SubListResult[0].SubscriptList}`);
   //return res.status(200).json(SubListResult);
+
   return res.status(200).json({ SubList: temp });
 
   //return res.status(200);
@@ -83,7 +84,6 @@ mainlist_router.get("/videolist/:page", async (req, res, next) => {
   const { page } = req.params;
   const VideoListResult = await VideoList.findAll({
     attributes: [
-      "id",
       "UserId",
       "MovieId",
       "Title",
@@ -103,6 +103,7 @@ mainlist_router.get("/videolist/:page", async (req, res, next) => {
     limit: 10,
   });
   const result = [];
+  console.log(VideoListResult);
   VideoListResult.forEach((item) => {
     const scroll_result = {
       UserId: item.UserId,
@@ -161,6 +162,12 @@ mainlist_router.post("/search", async (req, res, next) => {
       "URL",
       "ThumbNail",
     ],
+    include: [
+      {
+        model: User,
+        attributes: ["UserImage"],
+      },
+    ],
     where: {
       Title: {
         [Op.like]: "%" + search + "%",
@@ -168,7 +175,21 @@ mainlist_router.post("/search", async (req, res, next) => {
     },
     order: [["createdAt", "DESC"]],
   });
-  const Result_Json = JSON.stringify(VideoSearchResult);
+  const result = [];
+  VideoSearchResult.forEach((item) => {
+    const scroll_result = {
+      UserId: item.UserId,
+      MovieId: item.MovieId,
+      Title: item.Title,
+      Like: item.Like,
+      View: item.View,
+      URL: item.URL,
+      ThumbNail: item.ThumbNail,
+      UserImage: item.User.UserImage,
+    };
+    result.push(scroll_result);
+  });
+  const Result_Json = JSON.stringify(result);
   const temp = JSON.parse(`${Result_Json}`);
   return res.status(200).json({ VideoList: temp });
 });
@@ -181,21 +202,36 @@ mainlist_router.get("/youtube", async (req, res, next) => {
   youTube.setKey(env.YOUTUBE_API_KEY); // 여기에 실제 API 키를 입력
 
   youTube.search("항해99", 5, function (error, result) {
+    console.log(result);
     // 'Search Keyword' 자리에 검색하고 싶은 키워드를 입력
-    if (error) {
-      console.log(error);
-    } else {
-      result.items.forEach((item) => {
-        console.log("Channel Name: ", item.snippet.channelTitle);
-        console.log("Channel Thumbnail: ", item.snippet.thumbnails.default.url);
-        console.log("Like", item.statistics.likeCount);
-        console.log("Video Title: ", item.snippet.title);
-        console.log("Video Thumbnail: ", item.snippet.thumbnails.high.url);
-        console.log("---------------------------");
-      });
-    }
+    // result.items.forEach((item) => {
+    //   console.log("Channel Name: ", item.snippet.channelTitle);
+    //   console.log("Channel Thumbnail: ", item.snippet.thumbnails.default.url);
+    //   console.log("Like", item.statistics.likeCount);
+    //   console.log("Video Title: ", item.snippet.title);
+    //   console.log("Video Thumbnail: ", item.snippet.thumbnails.high.url);
+    //   console.log("---------------------------");
+    // });
+    const result_json = [];
+    result.items.forEach((item) => {
+      const temp_data = {
+        //UserId: item.UserId,
+        UserId: "17",
+        MovieId: "Youtube",
+        Title: item.snippet.title,
+        Like: 99,
+        View: 99999,
+        URL: "TEMP URL",
+        ThumbNail: "TEMP ThumbNail",
+        UserImage: "USER IMAGE",
+      };
+      result_json.push(temp_data);
+      console.log(item.snippet.title);
+    });
+    const Result_Json = JSON.stringify(result_json);
+    const temp = JSON.parse(`${Result_Json}`);
+    return res.status(200).json({ VideoList: temp });
   });
-  return res.status(200).json({ message: "유튜브 API 호출됨" });
 });
 
 module.exports = mainlist_router;

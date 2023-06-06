@@ -103,11 +103,22 @@ profile_router.post("/upload", authMiddleware, async (req, res, next) => {
     const { UserId } = res.locals.user;
     const { thumbnail, title, URL } = req.body;
     console.log("upload", UserId, title, URL, thumbnail);
+    const UserId_result = await User.findAll({
+      attributes: ["id"],
+      where: { UserId: UserId },
+    });
+    console.log(UserId_result);
     const video_upload_result = await VideoList.create({
-      UserId: UserId,
+      UserId: UserId_result[0].id,
       Title: title,
+      MovieId: 3000,
+      Like: 0,
+      View: 0,
       URL: URL,
       ThumbNail: thumbnail,
+    });
+    video_upload_result = await video_upload_result.update({
+      MovieId: video_upload_result.id,
     });
     return res.status(200).json({ message: "영상 올리기에 성공하였습니다." });
   } catch (err) {

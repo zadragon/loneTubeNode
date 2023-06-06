@@ -21,11 +21,24 @@ const {
   mainlist_router,
   profile_router,
   videoplay_router,
+  health_router,
 } = require("./routes/index.js");
 //const { videoplay_router } = require("./routes/index.js");
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+//app.use(express.json());
+//app.use(express.urlencoded({ extended: false }));
+app.use("/api", health_router);
+app.use(
+  express.json({
+    limit: "5mb",
+  })
+);
+app.use(
+  express.urlencoded({
+    limit: "5mb",
+    extended: false,
+  })
+);
 app.use(cookieParser());
 
 app.use("/api", [

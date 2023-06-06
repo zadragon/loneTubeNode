@@ -250,6 +250,7 @@ videoplay_router.delete(
       }
 
       await comment.destroy();
+
       res.status(200).json({ message: "댓글이 성공적으로 삭제되었습니다." });
     } catch (error) {
       console.error("댓글 삭제 실패:", error);

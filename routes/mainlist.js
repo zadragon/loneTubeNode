@@ -5,8 +5,8 @@ const env = process.env;
 const authMiddleware = require("../middlewares/auth-middleware");
 const { User, VideoList, Comment } = require("../models");
 const Sequelize = require("sequelize");
-const Op = Sequelize.Op
-var YouTube = require('youtube-node');
+const Op = Sequelize.Op;
+var YouTube = require("youtube-node");
 
 //구독리스트
 mainlist_router.post("/sublist", authMiddleware, async (req, res, next) => {
@@ -61,6 +61,13 @@ mainlist_router.get("/videolist", async (req, res, next) => {
       "URL",
       "ThumbNail",
     ],
+    include: [
+      {
+        model: User,
+        attributes: ["UserImage"],
+      },
+    ],
+    order: [["createdAt", "DESC"]],
   });
 
   const Result_Json = JSON.stringify(VideoListResult);
@@ -85,9 +92,17 @@ mainlist_router.get("/videolist/:page", async (req, res, next) => {
       "URL",
       "ThumbNail",
     ],
+    include: [
+      {
+        model: User,
+        attributes: ["UserImage"],
+      },
+    ],
+    order: [["createdAt", "DESC"]],
     offset: (page - 1) * 10,
     limit: 10,
   });
+
   const total_count = await VideoList.count();
   const total_page = Math.ceil(total_count / 10);
   const last_page = total_page == page ? true : false;
@@ -97,18 +112,18 @@ mainlist_router.get("/videolist/:page", async (req, res, next) => {
 
   //console.log(`{ "VideoList": ${Result_Json} }`.replace(/\"/gi, ""));
   const temp = JSON.parse(`${Result_Json}`);
-    return res.status(200).json({ VideoList: temp,
-      last_page: last_page,
-      total_page: total_page, });
-    //return res.status(200).json({ VideoList: temp});
+  return res
+    .status(200)
+    .json({ VideoList: temp, last_page: last_page, total_page: total_page });
+  //return res.status(200).json({ VideoList: temp});
 });
-
 
 //검색기능
 mainlist_router.post("/search", async (req, res, next) => {
   console.log("검색 API 호출됨");
   const { search } = req.body;
-
+  console.log(req.body);
+  console.log(search);
   const VideoSearchResult = await VideoList.findAll({
     attributes: [
       "id",
@@ -125,28 +140,8 @@ mainlist_router.post("/search", async (req, res, next) => {
         [Op.like]: "%" + search + "%",
       },
     },
+    order: [["createdAt", "DESC"]],
   });
-  //VideoSearchResult.push({ search: search });
-  //// 유튜브 영상검색
-  var youTube = new YouTube();
-
-  youTube.setKey(env.YOUTUBE_API_KEY); // 여기에 실제 API 키를 입력
-  
-  youTube.search(search, 5, function(error, result) { // 'Search Keyword' 자리에 검색하고 싶은 키워드를 입력
-    if (error) {
-      console.log(error);
-    } else {
-      result.items.forEach(item => {
-        console.log("Channel Name: ", item.snippet.channelTitle);
-        console.log("Channel Thumbnail: ", item.snippet.thumbnails.default.url);
-        console.log("Like",item.statistics.likeCount);
-        console.log("Video Title: ", item.snippet.title);
-        console.log("Video Thumbnail: ", item.snippet.thumbnails.high.url);
-        console.log("---------------------------");
-      });
-    }
-  });
-
   const Result_Json = JSON.stringify(VideoSearchResult);
   const temp = JSON.parse(`${Result_Json}`);
   return res.status(200).json({ VideoList: temp });
@@ -158,15 +153,16 @@ mainlist_router.get("/youtube", async (req, res, next) => {
   var youTube = new YouTube();
 
   youTube.setKey(env.YOUTUBE_API_KEY); // 여기에 실제 API 키를 입력
-  
-  youTube.search('항해99', 5, function(error, result) { // 'Search Keyword' 자리에 검색하고 싶은 키워드를 입력
+
+  youTube.search("항해99", 5, function (error, result) {
+    // 'Search Keyword' 자리에 검색하고 싶은 키워드를 입력
     if (error) {
       console.log(error);
     } else {
-      result.items.forEach(item => {
+      result.items.forEach((item) => {
         console.log("Channel Name: ", item.snippet.channelTitle);
         console.log("Channel Thumbnail: ", item.snippet.thumbnails.default.url);
-        console.log("Like",item.statistics.likeCount);
+        console.log("Like", item.statistics.likeCount);
         console.log("Video Title: ", item.snippet.title);
         console.log("Video Thumbnail: ", item.snippet.thumbnails.high.url);
         console.log("---------------------------");
@@ -175,6 +171,5 @@ mainlist_router.get("/youtube", async (req, res, next) => {
   });
   return res.status(200).json({ message: "유튜브 API 호출됨" });
 });
-
 
 module.exports = mainlist_router;

@@ -6,17 +6,15 @@ module.exports = async (req, res, next) => {
     console.log(1);
     console.log(req.body);
     //const { authorization } = req.cookies;
-    const {authorization} = req.body;
+    const { authorization } = req.body;
     console.log(authorization);
     console.log(2);
     const [tokenType, token] = authorization.split(" "); // 중괄호{} 를 대괄호[]로 수정
     console.log(3);
     if (!req.file) {
-      console.log("!!!!!!!!file 없음!!!!!!!!!!")
-    }
-    else
-    {
-      req.file = "temp file from auth-middleware.js"
+      console.log("!!!!!!!!file 없음!!!!!!!!!!");
+    } else {
+      req.file = "temp file from auth-middleware.js";
     }
 
     // # 403 Cookie가 존재하지 않을 경우
@@ -45,9 +43,6 @@ module.exports = async (req, res, next) => {
     }
 
     res.locals.user = user;
- 
-    
-
 
     next();
   } catch (error) {
